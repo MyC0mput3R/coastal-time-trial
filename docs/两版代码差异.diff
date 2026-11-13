@@ -1,0 +1,386 @@
+--- a/README.txt
++++ b/README.txt
+@@ -24,5 +24,5 @@
+     SHIFT      氮气加速
+     C          切换视角（追车 → 远景 → 第一人称，循环）
+-    V          切换驾驶权（两辆车各自独立，互不覆盖）
++    V          循环切换驾驶权（三辆车各自独立，互不覆盖）
+     F          第一人称视角调节面板（开 / 关）
+     R          原地复位
+@@ -53,12 +53,16 @@
+           想听引擎声按一下 M。
+ 
+-【两辆车（V 键切换驾驶权）】
+-  两辆车是各自独立的实体，各自摆位在赛道上不同位置（相距约 30m，同一时刻只显示一辆）：
+-    · 原厂跑车  —— 程序化生成的默认车（发车线）
+-    · MP4/4 —— 由 mp44.blend（你自己在 Blender 里建的模型）导入
+-  按 V（手柄 L3 / 触屏「换车」）切换「当前开哪一辆」：
++【三辆车（V 键循环切换驾驶权：0 → 1 → 2 → 0）】
++  三辆车是各自独立的实体，各自摆位在赛道上不同位置（相邻约 30m，同一时刻只显示一辆）：
++    · 原厂跑车   —— 程序化生成的默认车（发车线）
++    · MP4/4      —— 由 mp44.blend（你自己在 Blender 里建的模型）导入
++    · Lotus E20  —— 由 lotus e20.blend 导入，上了黑金涂装（碳黑车身 / 金色尾翼、
++      鼻锥与轮锁环 / 红色进气口 / 黑轮胎）。数据见 src/car3data.js，构建见 src/car3.js。
++      E20 是自动档（6 速手动仍是 MP4/4 专属），后驱走线取向，
++      抓地 31 / 横向上限 46 / 转向比 MP4/4 略灵活，同样不漂移、带现实刹车锁死。
++  按 V（手柄 L3 / 触屏「换车」）循环切换「当前开哪一辆」：
+     · 每辆车有自己的位置 / 速度 / 航向 / 氮气 / 圈速计时，切走时状态原样保留，
+       切回来接着开，不会互相覆盖，也不会瞬移回发车线。
+-    · 没在开的那辆隐藏（只改 visible，不删物体也不清状态），原地静止、不受物理推进，
++    · 没在开的那两辆隐藏（只改 visible，不删物体也不清状态），原地静止、不受物理推进，
+       切回来立刻重新出现，位置 / 速度 / 圈速都还在。
+     · R 复位 / ENTER 重开只作用于当前驾驶的车；HUD 计时与检查点也按车分槽。
+@@ -128,13 +132,13 @@
+ 
+ 【开局选车】
+-  打开游戏先弹选车层，选一辆再开始驾驶；未选中的车会隐藏，局内按 V 随时换乘
+-  （两辆车各自的位置 / 速度 / 圈速都独立，选车不会重置任何一辆；
++  打开游戏先弹选车层（三张卡），选一辆再开始驾驶；未选中的车会隐藏，局内按 V 随时换乘
++  （三辆车各自的位置 / 速度 / 圈速都独立，选车不会重置任何一辆；
+    选车层里高亮哪辆就只显示哪辆，确认后与局内 V 切换都自动保持「只显示一辆」）。
+-  键盘：← → 或 A D 选择，1 / 2 直选，ENTER / SPACE 出发。
++  键盘：← → 或 A D 选择，1 / 2 / 3 直选，ENTER / SPACE 出发。
+   手柄：十字键或左摇杆选择，A 或 START 出发。
+   鼠标 / 触屏：点卡片选中，再点一次该卡片直接出发，或点「开始驾驶」。
+   选中的车会记在 localStorage，下次开局默认高亮它；15 秒不操作自动出发。
+   选车期间游戏输入被冻结（车不动、计时不走），确认时清计时并解锁音频；
+-  想静音按 M。实现见 src/carselect.js，控制台可直接 CR.CarSelect.pick(1)。
++  想静音按 M。实现见 src/carselect.js，控制台可直接 CR.CarSelect.pick(2) 选 Lotus E20。
+ 
+ 【游戏规则】
+--- a/embed.html
++++ b/embed.html
+@@ -272,8 +272,12 @@
+ <script src="src/road.js?v=20261112d"></script>
+ <script src="src/props.js?v=20261112d"></script>
+-<script src="src/car.js?v=20261112d"></script>
++<script src="src/car.js?v=20261113a"></script>
+ <script src="src/car2data.js?v=20261112g"></script>
+-<script src="src/car2.js?v=20261112g"></script>
+-<script src="src/garage.js?v=20261112g"></script>
++<script src="src/car2.js?v=20261113a"></script>
++<!-- 第三辆车 Lotus E20（用户 Blender 模型，黑金涂装）：数据 + 构建模块；
++     数据缺失时 car3.js 自动跳过，两车版照常运行 -->
++<script src="src/car3data.js?v=20261113a"></script>
++<script src="src/car3.js?v=20261113a"></script>
++<script src="src/garage.js?v=20261113a"></script>
+ <script src="src/gearbox.js?v=20261112h"></script>
+ <script src="src/fpview.js?v=20261112g"></script>
+@@ -282,5 +286,5 @@
+ <script src="src/post.js?v=20261112d"></script>
+ <script src="src/record.js?v=20261112d"></script>
+-<script src="src/hud.js?v=20261112d"></script>
++<script src="src/hud.js?v=20261113a"></script>
+ <script src="src/audio.js?v=20261112d"></script>
+ <script src="src/camera.js?v=20261112f"></script>
+@@ -289,6 +293,6 @@
+ <script src="src/gamepad.js?v=20261112e"></script>
+ <script src="src/touch.js?v=20261112d"></script>
+-<script src="src/carselect.js?v=20261112i"></script>
+-<script src="src/main.js?v=20261112d"></script>
++<script src="src/carselect.js?v=20261113a"></script>
++<script src="src/main.js?v=20261113a"></script>
+ <script>
+   setTimeout(function () {
+--- a/index.html
++++ b/index.html
+@@ -240,8 +240,12 @@
+ <script src="src/road.js?v=20261112d"></script>
+ <script src="src/props.js?v=20261112d"></script>
+-<script src="src/car.js?v=20261112d"></script>
++<script src="src/car.js?v=20261113a"></script>
+ <script src="src/car2data.js?v=20261112g"></script>
+-<script src="src/car2.js?v=20261112g"></script>
+-<script src="src/garage.js?v=20261112g"></script>
++<script src="src/car2.js?v=20261113a"></script>
++<!-- 第三辆车 Lotus E20（用户 Blender 模型，黑金涂装）：数据 + 构建模块；
++     数据缺失时 car3.js 自动跳过，两车版照常运行 -->
++<script src="src/car3data.js?v=20261113a"></script>
++<script src="src/car3.js?v=20261113a"></script>
++<script src="src/garage.js?v=20261113a"></script>
+ <script src="src/gearbox.js?v=20261112h"></script>
+ <script src="src/fpview.js?v=20261112g"></script>
+@@ -250,5 +254,5 @@
+ <script src="src/post.js?v=20261112d"></script>
+ <script src="src/record.js?v=20261112d"></script>
+-<script src="src/hud.js?v=20261112d"></script>
++<script src="src/hud.js?v=20261113a"></script>
+ <script src="src/audio.js?v=20261112d"></script>
+ <script src="src/camera.js?v=20261112f"></script>
+@@ -257,6 +261,6 @@
+ <script src="src/gamepad.js?v=20261112e"></script>
+ <script src="src/touch.js?v=20261112d"></script>
+-<script src="src/carselect.js?v=20261112i"></script>
+-<script src="src/main.js?v=20261112d"></script>
++<script src="src/carselect.js?v=20261113a"></script>
++<script src="src/main.js?v=20261113a"></script>
+ <script>
+   setTimeout(function () {
+--- a/src/car.js
++++ b/src/car.js
+@@ -26,7 +26,7 @@
+   }
+ 
+-  /* 两辆车各自一份物理状态 / 几何 root / 部件表 / 调校。
++  /* 三辆车各自一份物理状态 / 几何 root / 部件表 / 调校。
+      CR.Car.state 始终指向 states[active]，其余模块每帧重读它 → 切驾驶权自动跟随。 */
+-  Car.states = [makeState(), makeState()];
++  Car.states = [makeState(), makeState(), makeState()];
+   Car.active = 0;
+   Car.state = Car.states[0];
+@@ -76,11 +76,31 @@
+       brakeForce: 40, brakeGrip: 30, brakeSlide: 20,
+       engineBrake: 9.6, engineBrakeHi: 0.60
++    },
++    {
++      /* Lotus E20（用户 Blender 模型，黑金涂装）：同为「靠走线」的后驱 F1，
++         但比 MP4/4 更灵活一点 —— 抓地略收、转向略放，适合主动切弯。
++         drift:false / 现实刹车 / powerYaw 后驱特性全部沿用同一套机制。
++         geared:false → 自动档，6 速手动仍是 MP4/4 专属（gearbox.js 不改动）。 */
++      name: 'Lotus E20',
++      drift: false,
++      gripNormal: 31.0, gripDrift: 31.0, gripHand: 1.5,
++      maxLatNormal: 46.0, maxLatDrift: 46.0, maxLatHand: 10, maxLatOff: 28.0,
++      gripRise: 3.0, gripFall: 12,
++      driftOn: 999, driftOff: 1.1,
++      yawNormal: 9.8, yawDrift: 5,
++      bodyRoll: 0.0021,
++      engineThrust: 18.5, engineVmax: 94, engineDrag: 0.0018,
++      steerCap: 0.78, yawGain: 0.56, geared: false, powerYaw: 0.80,
++      brakeForce: 40, brakeGrip: 30, brakeSlide: 20,
++      engineBrake: 9.0, engineBrakeHi: 0.58
+     }
+   ];
+   Car.tune = Car.TUNES[0];
+ 
+-  /* 切换驾驶权：只换引用，不动任何一辆车的状态 */
++  /* 切换驾驶权：只换引用，不动任何一辆车的状态。
++     i 按 TUNES 长度取模 → 两车/三车都通用，不再硬编码 2。 */
+   Car.setActive = function (i) {
+-    i = ((i % 2) + 2) % 2;
++    var n = Car.TUNES.length;
++    i = ((i % n) + n) % n;
+     Car.active = i;
+     Car.state = Car.states[i];
+--- a/src/car2.js
++++ b/src/car2.js
+@@ -48,10 +48,12 @@
+     return badge;
+   }
+-  /* 切换车型时闪一下车型名（on 为当前是否驾驶第二辆车） */
+-  Car2.showName = function (on) {
++  /* 切换车型时闪一下车型名。
++     on  = 是否正在驾驶第二辆车（MP4/4），用于维护 Car2.active；
++     name = 可选，由 garage.js 传入当前车型的调校名（三车版统一显示正确名字）。 */
++  Car2.showName = function (on, name) {
+     Car2.active = !!on;
+     var el = badgeEl();
+     if (!el) return;
+-    el.textContent = '当前车辆  ' + (on ? D.name : CR.Car.TUNES[0].name);
++    el.textContent = '当前车辆  ' + (name || (on ? D.name : CR.Car.TUNES[0].name));
+     el.classList.add('on');
+     clearTimeout(badgeT);
+--- a/src/carselect.js
++++ b/src/carselect.js
+@@ -83,9 +83,21 @@
+   }
+ 
+-  /* 参数条：两辆车共用同一个归一化基准（取两者最大值），横向可比 */
++  /* 参数条：所有车共用同一个归一化基准（取全部车型最大值），横向可比 */
++  var CAR_META = [
++    { tag: '程序化生成 · 均衡设定',
++      desc: '轻快好上手，松油门滑行更久，漂移更灵活' },
++    { tag: 'Blender 模型 · F1 高抓地',
++      desc: '红白涂装、6 速手动、强引擎制动，刷圈速取向' },
++    { tag: 'Blender 模型 · 黑金涂装',
++      desc: 'Lotus E20，后驱走线取向，转向比 MP4/4 更灵活' }
++  ];
++
+   function specs() {
+     var T = (CR.Car && CR.Car.TUNES) || [];
+-    var a = T[0] || {}, b = T[1] || {};
+-    function mx(k) { return Math.max(Number(a[k]) || 0, Number(b[k]) || 0, 1e-6); }
++    function mx(k) {
++      var m = 1e-6;
++      for (var i = 0; i < T.length; i++) m = Math.max(m, Number(T[i][k]) || 0);
++      return m;
++    }
+     var rows = [
+       { k: 'engineVmax',    lab: '极速',   unit: '' },
+@@ -94,5 +106,5 @@
+       { k: 'engineBrake',   lab: '倒拖',   unit: '' }
+     ];
+-    return [a, b].map(function (t, i) {
++    return T.map(function (t, i) {
+       var html = rows.map(function (r) {
+         var v = Number(t[r.k]) || 0, pct = Math.max(7, Math.min(100, v / mx(r.k) * 100));
+@@ -101,12 +113,12 @@
+                '<span class="cs-val">' + (Math.round(v * 10) / 10) + r.unit + '</span></div>';
+       }).join('');
++      var meta = CAR_META[i] || { tag: 'Blender 模型', desc: '' };
+       return {
+-        name: t.name || (i ? 'MP4/4' : '原厂跑车'),
+-        tag: i ? 'Blender 模型 · F1 高抓地' : '程序化生成 · 均衡设定',
+-        desc: i ? '红白涂装、6 速手动、强引擎制动，刷圈速取向'
+-                : '轻快好上手，松油门滑行更久，漂移更灵活',
++        name: t.name || ('车型 ' + (i + 1)),
++        tag: meta.tag,
++        desc: meta.desc,
+         gear: t.geared ? '6 速手动 · 手柄 A 升档 / X 降档' : '自动档 · 无需换档',
+         bars: html,
+-        key: i ? '按 <b>2</b> 选择' : '按 <b>1</b> 选择'
++        key: '按 <b>' + (i + 1) + '</b> 选择'
+       };
+     });
+@@ -136,5 +148,5 @@
+       '<div class="cs-foot">',
+       '  <button type="button" class="cs-go" id="cs-go">开始驾驶　▶</button>',
+-      '  <div class="cs-keys"><b>← →</b> / <b>A D</b> 选择　<b>1</b> <b>2</b> 直选　' +
++      '  <div class="cs-keys"><b>← →</b> / <b>A D</b> 选择　<b>1</b> <b>2</b> <b>3</b> 直选　' +
+       '<b>ENTER</b> / <b>SPACE</b> 出发<br>' +
+       '手柄：十字键或左摇杆选择，<b>A</b> / <b>START</b> 出发　·　音效按 <b>M</b> 开关</div>',
+@@ -145,5 +157,6 @@
+ 
+   function select(i) {
+-    CS.active = ((i % 2) + 2) % 2;
++    var n = (CR.Car && CR.Car.TUNES && CR.Car.TUNES.length) || 2;
++    CS.active = ((i % n) + n) % n;
+     for (var k = 0; k < cards.length; k++) {
+       cards[k].className = 'cs-card' + (k === CS.active ? ' sel' : '');
+@@ -213,5 +226,6 @@
+   var KEY_ALL   = { ArrowLeft: 1, KeyA: 1, ArrowUp: 1,
+                     ArrowRight: 1, KeyD: 1, ArrowDown: 1,
+-                    Enter: 1, NumpadEnter: 1, Space: 1, Digit1: 1, Digit2: 1 };
++                    Enter: 1, NumpadEnter: 1, Space: 1,
++                    Digit1: 1, Digit2: 1, Digit3: 1 };
+ 
+   function onKeyDown(e) {
+@@ -227,4 +241,5 @@
+     else if (c === 'Digit1') { select(0); resetAuto(); }
+     else if (c === 'Digit2') { select(1); resetAuto(); }
++    else if (c === 'Digit3') { select(2); resetAuto(); }
+     else if (KEY_OK[c]) confirm(false);
+   }
+--- a/src/garage.js
++++ b/src/garage.js
+@@ -35,16 +35,18 @@
+   }
+ 
+-  /* 只显示第 i 辆车。纯渲染层开关：两辆车的 root / state / 圈速调校全部保留，
+-     切回来立刻恢复，不删除、不重建任何物体。 */
++  /* 只显示第 i 辆车。纯渲染层开关：所有车的 root / state / 圈速调校全部保留，
++     切回来立刻恢复，不删除、不重建任何物体。按 roots.length 遍历 → 车辆数无关。 */
+   G.showOnly = function (i) {
+     var Car = CR.Car;
+     if (!Car || !Car.roots) return i;
+-    i = ((i % 2) + 2) % 2;
+-    if (Car.roots[0]) Car.roots[0].visible = (i === 0);
+-    if (Car.roots[1]) Car.roots[1].visible = (i === 1);
++    var n = (Car.TUNES && Car.TUNES.length) || Car.roots.length || 2;
++    i = ((i % n) + n) % n;
++    for (var k = 0; k < Car.roots.length; k++) {
++      if (Car.roots[k]) Car.roots[k].visible = (k === i);
++    }
+     return i;
+   };
+ 
+-  /* 在 Car.create + Car2.attach 之后调用 */
++  /* 在 Car.create + Car2.attach + Car3.attach 之后调用 */
+   G.setup = function (scene) {
+     var Car = CR.Car, T = CR.Track;
+@@ -52,13 +54,16 @@
+ 
+     var s0 = T.L - 14;
+-    place(Car.states[0], s0, 0);
+-    place(Car.states[1], s0 - GAP_S, GAP_LAT);
+-    /* 每辆车的 grip 初值按各自调校 */
+-    Car.states[0].grip = Car.TUNES[0].gripNormal;
+-    Car.states[1].grip = Car.TUNES[1].gripNormal;
++    var n = (Car.TUNES && Car.TUNES.length) || 2;
++    /* 沿赛道错开摆放：车0 发车线 / 车1 后退 30m 偏左 / 车2 再退 30m 偏右 */
++    var latOf = [0, GAP_LAT, -GAP_LAT];
++    for (var i = 0; i < n; i++) {
++      if (!Car.roots[i]) continue;              /* 未挂载的车型跳过，游戏照常 */
++      place(Car.states[i], s0 - GAP_S * i, latOf[i] || 0);
++      Car.states[i].grip = Car.TUNES[i].gripNormal;
++    }
+ 
+     if (CR.Hud && CR.Hud.resetSessions) CR.Hud.resetSessions();
+     Car.setActive(0);
+-    /* 两辆车的 root 都常驻场景（分开摆），但同一时刻只显示正在开的那一辆 */
++    /* 所有车的 root 常驻场景（分开摆），但同一时刻只显示正在开的那一辆 */
+     G.showOnly(0);
+     G.ready = true;
+@@ -68,13 +73,20 @@
+   /* 切换驾驶权：换 state 引用 + 换 root/parts 引用 + 换圈速槽 + 相机 snap */
+   G.setActive = function (i) {
+-    i = ((i % 2) + 2) % 2;
++    var n = (CR.Car.TUNES && CR.Car.TUNES.length) || 2;
++    i = ((i % n) + n) % n;
+     G.active = i;
+     CR.Car.setActive(i);
+     G.showOnly(i);                 /* 换驾驶权 = 换可见的那一辆 */
+-    if (CR.Car2 && CR.Car2.showName) CR.Car2.showName(i === 1);
++    /* 车型名徽标：Car2.showName 只认识「MP4/4 / 原厂车」两态，
++       三车版统一用 TUNES[i].name，避免第三辆显示错名字。 */
++    if (CR.Car2 && CR.Car2.showName) CR.Car2.showName(i === 1, CR.Car.TUNES[i].name);
+     if (CR.Gear && CR.Gear.sync) CR.Gear.sync();
+     return i;
+   };
+-  G.toggle = function () { return G.setActive(G.active ? 0 : 1); };
++  /* V / L3 换车：0 → 1 → 2 → 0 循环 */
++  G.toggle = function () {
++    var n = (CR.Car.TUNES && CR.Car.TUNES.length) || 2;
++    return G.setActive((G.active + 1) % n);
++  };
+   G.name = function (i) { return CR.Car.TUNES[i === undefined ? G.active : i].name; };
+ })();
+--- a/src/hud.js
++++ b/src/hud.js
+@@ -13,5 +13,12 @@
+     return { running: false, time: 0, checkpoint: false, prevS: 0, hold: 0, lastTime: 0 };
+   }
+-  var sessions = [makeSession(), makeSession()];
++  /* 按 Car.TUNES 数量建槽（三车版 = 3 份），每加一辆车无需再改这里 */
++  function nCars() { return (CR.Car && CR.Car.TUNES && CR.Car.TUNES.length) || 2; }
++  function freshSessions() {
++    var a = [], n = nCars();
++    for (var i = 0; i < n; i++) a.push(makeSession());
++    return a;
++  }
++  var sessions = freshSessions();
+   var S = sessions[0];
+   /* 氮气条：只在整数百分比变化时写一次 transform，绝不读布局、不写 innerHTML */
+@@ -93,11 +100,13 @@
+   /* 切驾驶权：换计时槽，并把 prevS 对齐到该车当前位置，避免误判冲线 */
+   Hud.setActive = function (i) {
+-    S = sessions[((i % 2) + 2) % 2];
+-    S.prevS = CR.Car.states[((i % 2) + 2) % 2].s;
++    var n = nCars();
++    i = ((i % n) + n) % n;
++    S = sessions[i];
++    S.prevS = CR.Car.states[i] ? CR.Car.states[i].s : 0;
+     last.speed = last.time = last.last = null;
+     nosPct = -1;
+   };
+   Hud.resetSessions = function () {
+-    sessions = [makeSession(), makeSession()];
++    sessions = freshSessions();
+     S = sessions[0];
+     S.prevS = CR.Car.state ? CR.Car.state.s : 0;
+--- a/src/main.js
++++ b/src/main.js
+@@ -213,8 +213,11 @@
+       CR.Props.create(scene);
+       CR.Car.create(scene);
+-      /* 第二辆车（Blender 模型）：挂在同一个 Car.root 下，只切 visible，
++      /* 第二辆车（Blender 模型 MP4/4）：挂在同一个 Car.root 下，只切 visible，
+          物理 / 相机 / 音效 / 特效共用，原车一行不删 */
+       if (CR.Car2 && CR.Car2.attach) CR.Car2.attach(scene);
+-      /* 双车车库：两辆车分开摆位、各自独立状态 / 圈速 / 调校 */
++      /* 第三辆车（Blender 模型 Lotus E20，黑金涂装）：同样独立 root / parts。
++         数据在 car3data.js；数据缺失时模块自动跳过，两车版照常运行。 */
++      if (CR.Car3 && CR.Car3.attach) CR.Car3.attach(scene);
++      /* 车库：按 Car.TUNES 数量摆位，各自独立状态 / 圈速 / 调校 */
+       if (CR.Garage && CR.Garage.setup) CR.Garage.setup(scene);
+       CR.Effects.create(scene);
